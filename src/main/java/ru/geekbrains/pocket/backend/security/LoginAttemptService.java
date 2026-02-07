@@ -1,11 +1,10 @@
 package ru.geekbrains.pocket.backend.security;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import org.springframework.stereotype.Service;
 
-import java.util.concurrent.ExecutionException;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 //https://www.baeldung.com/spring-security-block-brute-force-authentication-attempts
@@ -16,40 +15,29 @@ import java.util.concurrent.TimeUnit;
 public class LoginAttemptService {
 
     private final int MAX_ATTEMPT = 10;
-    private LoadingCache<String, Integer> attemptsCache;
+    private final LoadingCache<String, Integer> attemptsCache;
 
     public LoginAttemptService() {
-        super();
-        attemptsCache = CacheBuilder.newBuilder()
+        attemptsCache = Caffeine.newBuilder()
                 .expireAfterWrite(1, TimeUnit.DAYS)
-                .build(new CacheLoader<String, Integer>() {
-            @Override
-            public Integer load(final String key) {
-                return 0;
-            }
-        });
+                .build(key -> 0); // Дефолтное значение
     }
 
     public void loginSucceeded(final String key) {
         attemptsCache.invalidate(key);
     }
 
+    private int getAttempts(String key) {
+        return Optional.ofNullable(attemptsCache.get(key)).orElse(0);
+    }
+
     public void loginFailed(final String key) {
-        int attempts = 0;
-        try {
-            attempts = attemptsCache.get(key);
-        } catch (final ExecutionException e) {
-            attempts = 0;
-        }
+        int attempts = getAttempts(key);
         attempts++;
         attemptsCache.put(key, attempts);
     }
 
     public boolean isBlocked(final String key) {
-        try {
-            return attemptsCache.get(key) >= MAX_ATTEMPT;
-        } catch (final ExecutionException e) {
-            return false;
-        }
+        return getAttempts(key) >= MAX_ATTEMPT;
     }
 }
