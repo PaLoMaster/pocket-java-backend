@@ -13,7 +13,7 @@ import java.util.function.Function;
 
 @Component
 public class JwtTokenUtil implements Serializable {
-    private static final long ACCESS_TOKEN_VALIDITY_SECONDS = 30*24*60*60;//30 дней
+    private static final long ACCESS_TOKEN_VALIDITY_MILLISECONDS = 30*24*60*60*1000L;//30 дней
     private static final String SIGNING_KEY = "pocket";
 
     public String getUsernameFromToken(String token) {
@@ -54,7 +54,7 @@ public class JwtTokenUtil implements Serializable {
                 .setClaims(claims)
                 .setIssuer("http://geekbrains.ru")
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALIDITY_SECONDS*1000))
+                .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALIDITY_MILLISECONDS))
                 .signWith(SignatureAlgorithm.HS256, SIGNING_KEY)
                 .compact();
 
