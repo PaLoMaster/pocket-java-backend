@@ -19,3 +19,5 @@ OAuth2Configuration
 \
 https://java-api.pocketmsg.ru
 http://localhost:8888
+https://localhost:8888
+https://localhost:8888/swagger-ui/
