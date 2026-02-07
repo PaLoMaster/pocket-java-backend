@@ -57,7 +57,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         web.httpFirewall(allowHttpMethodsFirewall());
         web.ignoring().antMatchers("/webjars/**", "/v2/api-docs/**",
                 "/configuration/ui/**", "/configuration/security/**",
-                "/swagger-resources/**", "/swagger-ui.html/**", "/swagger-ui.html#/**");
+                "/swagger-resources/**", "/swagger-ui/**");
     }
 
     @Override
